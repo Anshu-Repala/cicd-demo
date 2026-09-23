@@ -6,15 +6,24 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check HTML file
+      - name: Test HTML file
         run: test -f index.html
 
-      - name: Build successful
-        run: echo "Build and test completed successfully"
+      - name: Build Docker image
+        run: docker build -t cicd-demo:latest .
+
+      - name: Test Docker container
+        run: |
+          docker run -d -p 8080:80 --name cicd-container cicd-demo:latest
+          sleep 5
+          curl http://localhost:8080
+
+      - name: Stop Docker container
+        run: docker stop cicd-container
